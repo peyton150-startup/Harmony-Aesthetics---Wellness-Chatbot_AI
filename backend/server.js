@@ -5,41 +5,43 @@ import OpenAI from "openai";
 import cors from "cors";
 import { fileURLToPath } from "url";
 
-/* ---------- resolve dirname (ESM-safe) ---------- */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-/* ---------- DEBUG (IMPORTANT) ---------- */
-console.log("SERVER __dirname =", __dirname);
-
-
-/* ---------- app ---------- */
 const app = express();
-app.use(cors());
+
+/* 🔐 CORS — THIS IS THE FIX */
+app.use(
+  cors({
+    origin: [
+      "https://harmony-aesthetics---wellness-chatbot-ai-1.onrender.com"
+    ],
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type"]
+  })
+);
+
 app.use(express.json());
 
-/* ---------- OpenAI ---------- */
+/* OpenAI */
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-/* ---------- FIXED PATH ---------- */
+/* Load data correctly */
 const pagesPath = path.join(__dirname, "data", "pages.json");
-
-console.log("LOOKING FOR pages.json AT =", pagesPath);
-
-if (!fs.existsSync(pagesPath)) {
-  throw new Error(`pages.json NOT FOUND at ${pagesPath}`);
-}
-
 const pages = JSON.parse(fs.readFileSync(pagesPath, "utf8"));
-console.log("Resolved pages.json path:", pagesPath);
-/* ---------- knowledge base ---------- */
+
 const knowledgeBase = pages
   .map(p => `PAGE: ${p.title}\n${p.content}`)
   .join("\n\n----------------\n\n");
 
-/* ---------- chat ---------- */
+/* Health */
+app.get("/health", (req, res) => {
+  res.json({ status: "ok" });
+});
+
+/* Chat */
 app.post("/api/chat", async (req, res) => {
   try {
     const { message } = req.body;
@@ -54,32 +56,28 @@ app.post("/api/chat", async (req, res) => {
           role: "system",
           content: `
 You are the official assistant for Harmony Aesthetics & Wellness.
-
 Answer ONLY using the information below.
 If the answer is not explicitly stated, say:
 "I don’t have that information."
 
 ${knowledgeBase}
-          `
+`
         },
         { role: "user", content: message }
       ]
     });
 
-    res.json({ answer: completion.choices[0].message.content });
+    res.json({
+      answer: completion.choices[0].message.content
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error" });
   }
 });
 
-/* ---------- health ---------- */
-app.get("/health", (req, res) => {
-  res.json({ status: "ok" });
-});
-
-/* ---------- start ---------- */
-const PORT = process.env.PORT || 3000;
+/* Start */
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
