@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
-import fetch from "node-fetch";
 import dotenv from "dotenv";
+import fetch from "node-fetch";
 import { semanticSearch } from "./vectorStore.js";
 
 dotenv.config();
@@ -19,29 +19,30 @@ app.get("/health", (req, res) => {
 app.post("/api/chat", async (req, res) => {
   try {
     const userMessage = req.body.message;
+
     if (!userMessage) {
       return res.status(400).json({ error: "No message provided" });
     }
 
-    // 1️⃣ Retrieve relevant knowledge
-   const retrievedContext = await semanticSearch(userMessage);
-console.log("RETRIEVED CONTEXT:", retrievedContext);
+    // 1️⃣ Retrieve relevant context
+    const retrievedContext = await semanticSearch(userMessage);
 
+    console.log("RETRIEVED CONTEXT:", retrievedContext);
 
-    // 2️⃣ Strict system prompt
+    // 2️⃣ Build system prompt (NOT overly strict)
     const systemPrompt = `
 You are an AI assistant for Harmony Aesthetics & Wellness.
 
-RULES:
-- Answer ONLY using the CONTEXT below.
-- If the answer is not found, say:
-  "I don’t have that information."
+INSTRUCTIONS:
+- Answer using the CONTEXT below.
+- If the context contains relevant information, answer clearly and directly.
+- Only say "I don’t have that information." if the context is completely unrelated.
 
 CONTEXT:
-${retrievedContext || "No relevant information found."}
+${retrievedContext || "No context available."}
 `;
 
-    // 3️⃣ OpenAI Responses API call (CORRECT FORMAT)
+    // 3️⃣ OpenAI call (Responses API – correct format)
     const response = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
@@ -49,19 +50,31 @@ ${retrievedContext || "No relevant information found."}
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "gpt-4.1-mini",
         input: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userMessage }
+          {
+            role: "system",
+            content: systemPrompt
+          },
+          {
+            role: "user",
+            content: userMessage
+          }
         ]
       })
     });
 
     const data = await response.json();
 
-    // 4️⃣ Correct extraction for Responses API
+    if (!response.ok) {
+      console.error("OpenAI error:", data);
+      return res.status(500).json({ error: "AI request failed" });
+    }
+
+    // 4️⃣ Safe answer extraction
     const answer =
       data?.output_text ||
+      data?.output?.[0]?.content?.[0]?.text ||
       "I don’t have that information.";
 
     res.json({ answer });
@@ -75,5 +88,5 @@ ${retrievedContext || "No relevant information found."}
 /* ---------- Start server ---------- */
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`✅ Server running on port ${PORT}`);
 });
