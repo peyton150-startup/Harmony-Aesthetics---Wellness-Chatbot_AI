@@ -110,9 +110,6 @@
 </div>
 
 <script>
-  // 🔁 CHANGE THIS IF NEEDED
-  const API_BASE = "https://harmony-aesthetics-wellness-chatbot-ai.onrender.com";
-
   const indicator = document.getElementById("indicator");
   const output = document.getElementById("output");
   const input = document.getElementById("input");
@@ -120,7 +117,7 @@
 
   async function checkConnection() {
     try {
-      const res = await fetch(`${API_BASE}/health`);
+      const res = await fetch("/health");
       if (!res.ok) throw new Error();
 
       indicator.textContent = "CONNECTED: YES";
@@ -141,7 +138,7 @@
     input.value = "";
 
     try {
-      const res = await fetch(`${API_BASE}/api/chat`, {
+      const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message })
@@ -155,6 +152,7 @@
   }
 
   sendBtn.addEventListener("click", sendMessage);
+
   input.addEventListener("keydown", e => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -165,6 +163,7 @@
   checkConnection();
   setInterval(checkConnection, 5000);
 </script>
+
 
 </body>
 </html>
