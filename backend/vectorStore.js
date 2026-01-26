@@ -19,55 +19,41 @@ function cosineSimilarity(a, b) {
   return dot / (magA * magB);
 }
 
-/* ---------- build vectors (RUN ONCE AFTER SCRAPING) ---------- */
-export async function buildVectors(chunks) {
-  if (!Array.isArray(chunks) || chunks.length === 0) {
-    throw new Error("No chunks provided to buildVectors()");
-  }
-
-  const inputs = chunks.map(c => c.text);
-
-  const embeddingResponse = await openai.embeddings.create({
-    model: "text-embedding-3-small",
-    input: inputs
-  });
-
-  const vectors = chunks.map((chunk, i) => ({
-    id: chunk.id,
-    source: chunk.source || "unknown",
-    text: chunk.text,
-    embedding: embeddingResponse.data[i].embedding
-  }));
-
-  fs.mkdirSync("./data", { recursive: true });
-  fs.writeFileSync(VECTOR_FILE, JSON.stringify(vectors, null, 2));
-
-  console.log(`✅ ${vectors.length} vectors saved to ${VECTOR_FILE}`);
-}
-
 /* ---------- semantic search (USED AT RUNTIME) ---------- */
 export async function semanticSearch(query, topK = 3) {
-  if (!fs.existsSync(VECTOR_FILE)) return "";
+  if (!fs.existsSync(VECTOR_FILE)) {
+    console.error("❌ vectors.json not found");
+    return "";
+  }
 
   const vectors = JSON.parse(fs.readFileSync(VECTOR_FILE, "utf8"));
 
-  const queryEmbedding = await openai.embeddings.create({
+  const embeddingResponse = await openai.embeddings.create({
     model: "text-embedding-3-small",
     input: query
   });
 
+  const queryEmbedding = embeddingResponse.data[0].embedding;
+
   const scored = vectors.map(v => ({
     text: v.text,
-    score: cosineSimilarity(
-      queryEmbedding.data[0].embedding,
-      v.embedding
-    )
+    score: cosineSimilarity(queryEmbedding, v.embedding)
   }));
 
-  return scored
-    .filter(r => r.score > 0.6) // similarity threshold
-    .sort((a, b) => b.score - a.score)
-    .slice(0, topK)
+  scored.sort((a, b) => b.score - a.score);
+
+  const topMatches = scored.slice(0, topK);
+
+  console.log(
+    "🔍 Top similarity scores:",
+    topMatches.map(r => r.score.toFixed(3))
+  );
+
+  // 🔑 IMPORTANT FIX:
+  // If similarity is weak, still return best matches
+  const context = topMatches
     .map(r => r.text)
     .join("\n\n");
+
+  return context || "";
 }
