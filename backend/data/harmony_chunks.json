@@ -1,0 +1,30 @@
+[
+  {
+    "id": "about",
+    "text": "Harmony Aesthetics & Wellness is a medical spa with locations in Kensington, Maryland and Falls Church, Virginia. The clinic focuses on personalized care, natural-looking results, and a welcoming environment."
+  },
+  {
+    "id": "services_aesthetics",
+    "text": "Harmony Aesthetics & Wellness offers facials, customized skincare treatments, RF microneedling, IPL therapy, chemical peels, and PRX Collagen Stimulator."
+  },
+  {
+    "id": "services_injectables",
+    "text": "Injectable services include neurotoxins such as Botox-style treatments and dermal fillers. Treatments focus on subtle, natural results."
+  },
+  {
+    "id": "services_other",
+    "text": "Additional services include DeRive Hair Restoration, laser hair removal, ketamine therapy, and vitamin IV therapy."
+  },
+  {
+    "id": "consultations",
+    "text": "Complimentary consultations are offered to discuss aesthetic and wellness goals and recommend appropriate treatments."
+  },
+  {
+    "id": "locations",
+    "text": "Kensington location: 10901 Connecticut Ave #201, Kensington, MD 20895. Falls Church location: 124 E Broad St Suite A, Falls Church, VA 22046."
+  },
+  {
+    "id": "booking",
+    "text": "Appointments can be scheduled online, by phone, or in person at either location."
+  }
+]

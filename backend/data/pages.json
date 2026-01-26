@@ -1,0 +1,68 @@
+[
+{
+  "slug": "business-facts",
+  "title": "Business Information",
+  "content": "Business Name: Harmony Aesthetics & Wellness\nAddress: 10901 Connecticut Ave #201, Kensington, MD 20895\nPhone: (240) 280-0020\nEmail: info@harmonyaw.com\nHours:\nMonday–Friday: 9:00 AM – 5:00 PM\nSaturday: 9:00 AM – 3:00 PM (by appointment only)\nSunday: Closed"
+},
+
+  {
+    "slug": "home",
+    "title": "Home",
+    "content": "Harmony Aesthetics & Wellness is a trusted medical spa located in Kensington, Maryland, dedicated to helping clients look and feel their best through advanced aesthetic and wellness treatments. The practice combines science, care, innovation, and serenity to deliver personalized, natural-looking results in a calm, spa-like environment. Office hours are Monday through Friday from 9:00 am to 5:00 pm, Saturday from 9:00 am to 3:00 pm by appointment only, and closed on Sunday."
+  },
+  {
+    "slug": "about",
+    "title": "About Us",
+    "content": "Harmony Aesthetics & Wellness focuses on personalized care, advanced technology, and expert providers to enhance natural beauty and confidence. The team prioritizes patient comfort, safety, and long-term results through customized treatment plans and a holistic approach to aesthetics and wellness."
+  },
+  {
+    "slug": "services/laser-treatments",
+    "title": "Laser Treatments",
+    "content": "Laser treatments at Harmony Aesthetics & Wellness address skin rejuvenation, sun damage, acne, scarring, pigmentation, benign lesions, spider veins, tattoo removal, permanent hair reduction, and snoring. Treatments are performed by licensed professionals using advanced laser technology and customized protocols suitable for all skin types."
+  },
+  {
+    "slug": "services/rf-microneedling",
+    "title": "RF Microneedling",
+    "content": "RF microneedling treatments include Scarlet RF for skin tightening, texture improvement, acne scarring, and overall rejuvenation, and Agnes RF for targeted fat reduction and contouring in areas such as under-eye bags and jowls. Treatments stimulate collagen production and deliver noticeable results with minimal downtime."
+  },
+  {
+    "slug": "services/facials",
+    "title": "Facials",
+    "content": "Facial services include Osmosis Signature and Deluxe Facials and Hydrash hydrodermabrasion treatments. These facials cleanse, exfoliate, hydrate, and restore skin health using professional-grade, non-toxic skincare and advanced infusion technology suitable for all skin types."
+  },
+  {
+    "slug": "services/iv-therapy",
+    "title": "IV Therapy",
+    "content": "IV Therapy delivers vitamins, minerals, antioxidants, and hydration directly into the bloodstream for immediate absorption. Infusions support energy, immunity, recovery, hydration, skin health, and overall wellness. Available options include detox, Meyer’s cocktail, skin radiance, B12, L-carnitine, and glutathione drips."
+  },
+  {
+    "slug": "services/weight-loss",
+    "title": "Weight Loss",
+    "content": "The medically supervised weight loss program uses FDA-approved GLP-1 medications such as Semaglutide and Tirzepatide to support appetite control, metabolic balance, and sustainable fat loss. Treatment plans are customized and guided by medical professionals for safe, long-term results."
+  },
+  {
+    "slug": "technology",
+    "title": "Technology",
+    "content": "Harmony Aesthetics & Wellness uses advanced technology including Fotona SP Dynamis Pro for non-surgical facelifts, IBlaze CO2 laser for resurfacing, Agnes RF for acne and contouring, Scarlet RF for microneedling with radiofrequency, and ColorMax Q-Switched Laser for pigmentation and tattoo removal."
+  },
+  {
+    "slug": "transformations",
+    "title": "Transformations",
+    "content": "Transformations at Harmony Aesthetics & Wellness showcase real patient results achieved through personalized treatment plans, advanced technology, and expert care. The focus is on subtle, natural improvements that enhance confidence and overall well-being."
+  },
+  {
+    "slug": "faqs",
+    "title": "FAQs",
+    "content": "Harmony Aesthetics & Wellness offers complimentary consultations, online and phone booking, package pricing, and customized treatments. FAQs cover facials, RF microneedling, IPL, chemical peels, injectables, hair restoration, and laser hair removal, including expected results, downtime, and number of sessions required."
+  },
+  {
+    "slug": "rates",
+    "title": "Rates",
+    "content": "Service pricing includes facials, RF microneedling, IPL, chemical peels, injectables, fillers, hair restoration, and laser hair removal. Prices vary by treatment area and individual needs. A consultation is recommended for personalized pricing."
+  },
+  {
+    "slug": "booking",
+    "title": "Booking",
+    "content": "Appointments can be booked online or requested directly. Available time slots include morning, afternoon, and evening appointments from 10:00 am to 5:00 pm. Clients provide basic contact details and scheduling preferences, and the clinic accommodates busy schedules whenever possible."
+  }
+]

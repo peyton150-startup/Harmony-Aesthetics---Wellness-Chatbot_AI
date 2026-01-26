@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Harmony Aesthetics – Chatbot</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      background: #f9f3f6;
+      color: #3a3a3a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 10px 10px 30px rgba(0,0,0,0.1);
+      padding: 54px;
+    }
+
+    h1 {
+      margin: 0 0 8px 0;
+      color: #b46a8c;
+      font-weight: 500;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #777;
+      margin-bottom: 16px;
+    }
+
+    #indicator {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .yes {
+      background: #e6f4ec;
+      color: #1e7f43;
+    }
+
+    .no {
+      background: #fdecea;
+      color: #a12622;
+    }
+
+    .chat-output {
+      width: 100%;
+      height: 200px;
+      border: 1px solid #e5d6de;
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 14px;
+      resize: none;
+      background: #fdfafb;
+      margin-bottom: 14px;
+    }
+
+    .chat-input {
+      width: 100%;
+      height: 70px;
+      border: 1px solid #e5d6de;
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 14px;
+      resize: none;
+      margin-bottom: 12px;
+    }
+
+    button {
+      background: #b46a8c;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 30px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background: #d8b4c4;
+      cursor: not-allowed;
+    }
+
+    .footer-note {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Harmony Aesthetics & Wellness</h1>
+    <div class="subtitle">Virtual Assistant</div>
+
+    <div id="indicator">Checking connection…</div>
+
+    <textarea
+      id="output"
+      class="chat-output"
+      readonly
+      placeholder="Chatbot responses will appear here…"
+    ></textarea>
+
+    <textarea
+      id="input"
+      class="chat-input"
+      placeholder="Ask a question about our services…"
+    ></textarea>
+
+    <button id="sendBtn" disabled>Send</button>
+
+    <div class="footer-note">
+      For informational purposes only. Please contact us to book an appointment.
+    </div>
+  </div>
+
+  <script>
+    const indicator = document.getElementById("indicator");
+    const output = document.getElementById("output");
+    const input = document.getElementById("input");
+    const sendBtn = document.getElementById("sendBtn");
+
+    async function checkConnection() {
+      try {
+        const res = await fetch("http://localhost:3000/health");
+        if (!res.ok) throw new Error();
+
+        indicator.textContent = "CONNECTED: YES";
+        indicator.className = "yes";
+        sendBtn.disabled = false;
+      } catch {
+        indicator.textContent = "CONNECTED: NO";
+        indicator.className = "no";
+        sendBtn.disabled = true;
+      }
+    }
+
+    async function sendMessage() {
+      const message = input.value.trim();
+      if (!message) return;
+
+      output.value = "Thinking…";
+      input.value = "";
+
+      try {
+        const res = await fetch("http://localhost:3000/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message })
+        });
+
+        const data = await res.json();
+        output.value = data.answer || "No response received.";
+      } catch {
+        output.value = "Error: Unable to contact the server.";
+      }
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+
+    input.addEventListener("keydown", e => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    checkConnection();
+    setInterval(checkConnection, 3000);
+  </script>
+
+</body>
+</html>

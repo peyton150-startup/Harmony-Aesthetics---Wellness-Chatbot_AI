@@ -1,0 +1,2 @@
+set OPENAI_API_KEY=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
+node server.js

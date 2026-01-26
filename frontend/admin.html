@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Panel</title>
+</head>
+<body>
+
+<h2>Edit Knowledge Base</h2>
+
+<textarea id="content" rows="20" cols="80"></textarea><br><br>
+<button onclick="save()">Save & Rebuild</button>
+
+<script>
+async function save() {
+  const text = document.getElementById("content").value;
+
+  await fetch("http://localhost:3000/admin/update", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text })
+  });
+
+  alert("Knowledge base updated.");
+}
+</script>
+
+</body>
+</html>
