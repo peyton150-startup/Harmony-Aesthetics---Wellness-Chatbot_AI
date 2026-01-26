@@ -5,50 +5,39 @@ import OpenAI from "openai";
 import cors from "cors";
 
 const app = express();
-const __dirname = path.resolve();
-
-/* ---------- middleware ---------- */
 app.use(cors());
 app.use(express.json());
 
-/* ---------- serve frontend ---------- */
-app.use(
-  express.static(path.join(__dirname, "frontend"))
-);
+// ---------- FRONTEND PATH (THIS IS THE FIX) ----------
+const __dirname = new URL(".", import.meta.url).pathname;
+const frontendPath = path.resolve(__dirname, "../frontend");
 
-app.get("/", (req, res) => {
-  res.sendFile(
-    path.join(__dirname, "frontend", "index.html")
-  );
-});
+// Serve frontend files
+app.use(express.static(frontendPath));
 
-/* ---------- OpenAI ---------- */
+// ---------- OPENAI ----------
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-/* ---------- load knowledge ---------- */
-const pagesPath = path.join(
-  __dirname,
-  "backend",
-  "data",
-  "pages.json"
-);
+// ---------- LOAD DATA ----------
+const pagesPath = path.resolve(__dirname, "../data/pages.json");
+const pages = JSON.parse(fs.readFileSync(pagesPath, "utf8"));
 
-const pages = JSON.parse(
-  fs.readFileSync(pagesPath, "utf8")
-);
+if (!Array.isArray(pages) || pages.length === 0) {
+  throw new Error("pages.json is empty or invalid");
+}
 
 const knowledgeBase = pages
-  .map(p => `PAGE: ${p.title}\n${p.content}`)
+  .map(page => `PAGE: ${page.title}\n${page.content}`)
   .join("\n\n----------------\n\n");
 
-/* ---------- chat endpoint ---------- */
+// ---------- API ----------
 app.post("/api/chat", async (req, res) => {
   try {
-    const message = req.body.message;
-    if (!message) {
-      return res.status(400).json({ error: "Message required" });
+    const userQuestion = req.body.message;
+    if (!userQuestion) {
+      return res.status(400).json({ error: "Message is required" });
     }
 
     const completion = await openai.chat.completions.create({
@@ -57,34 +46,38 @@ app.post("/api/chat", async (req, res) => {
         {
           role: "system",
           content: `
-You are the assistant for Harmony Aesthetics & Wellness.
-Answer ONLY from the content below.
-If missing, say: "I don’t have that information."
+You are the official assistant for Harmony Aesthetics & Wellness.
+
+Answer ONLY using the information below.
+If the answer is not explicitly stated, say:
+"I don’t have that information."
 
 ${knowledgeBase}
           `
         },
-        { role: "user", content: message }
+        { role: "user", content: userQuestion }
       ]
     });
 
-    res.json({
-      answer: completion.choices[0].message.content
-    });
-
+    res.json({ answer: completion.choices[0].message.content });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error" });
   }
 });
 
-/* ---------- health ---------- */
+// ---------- HEALTH CHECK ----------
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-/* ---------- start ---------- */
+// ---------- FRONTEND FALLBACK ----------
+app.get("*", (req, res) => {
+  res.sendFile(path.join(frontendPath, "index.html"));
+});
+
+// ---------- START ----------
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
