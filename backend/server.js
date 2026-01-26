@@ -1,71 +1,77 @@
 import express from "express";
 import cors from "cors";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
+import fetch from "node-fetch";
+import dotenv from "dotenv";
+import { semanticSearch } from "./vectorstore.js";
+
+dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 10000;
-
-// Needed for ES modules (__dirname replacement)
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-/* =========================
-   CORS CONFIG (CRITICAL)
-========================= */
-app.use(cors({
-  origin: [
-    "https://harmony-aesthetics-wellness-chatbot-ai-1.onrender.com"
-  ],
-  methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type"]
-}));
-
+app.use(cors());
 app.use(express.json());
 
-/* =========================
-   DATA FILE PATHS
-   backend/data/pages.json
-========================= */
-const DATA_DIR = path.join(__dirname, "data");
-const PAGES_PATH = path.join(DATA_DIR, "pages.json");
-
-let pages = [];
-
-try {
-  pages = JSON.parse(fs.readFileSync(PAGES_PATH, "utf-8"));
-  console.log("pages.json loaded successfully");
-} catch (err) {
-  console.error("FAILED TO LOAD pages.json:", err.message);
-}
-
-/* =========================
-   HEALTH CHECK (REQUIRED)
-========================= */
+/* ---------- Health check ---------- */
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-/* =========================
-   CHAT ENDPOINT
-========================= */
+/* ---------- AI Chat Endpoint ---------- */
 app.post("/api/chat", async (req, res) => {
-  const { message } = req.body;
+  try {
+    const userMessage = req.body.message;
+    if (!userMessage) {
+      return res.status(400).json({ error: "No message provided" });
+    }
 
-  if (!message) {
-    return res.status(400).json({ error: "Message is required" });
+    // 1️⃣ Retrieve relevant knowledge
+    const retrievedContext = await semanticSearch(userMessage);
+
+    // 2️⃣ Build strict system prompt
+    const systemPrompt = `
+You are an AI assistant for Harmony Aesthetics & Wellness.
+
+RULES:
+- Answer ONLY using the CONTEXT below.
+- If the answer is not found, say:
+  "I don’t have that information."
+
+CONTEXT:
+${retrievedContext || "No relevant information found."}
+`;
+
+    // 3️⃣ OpenAI call
+    const response = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        input: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userMessage }
+        ]
+      })
+    });
+
+    const data = await response.json();
+
+    // 4️⃣ Safe extraction
+    const answer =
+      data?.output?.[0]?.content?.[0]?.text ||
+      "I don’t have that information.";
+
+    res.json({ answer });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
   }
-
-  // VERY BASIC RESPONSE (replace with your AI logic)
-  const answer = `You asked: "${message}"`;
-
-  res.json({ answer });
 });
 
-/* =========================
-   START SERVER
-========================= */
+/* ---------- Start server ---------- */
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
