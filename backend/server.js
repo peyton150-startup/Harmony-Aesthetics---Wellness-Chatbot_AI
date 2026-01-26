@@ -23,10 +23,10 @@ app.post("/api/chat", async (req, res) => {
       return res.status(400).json({ error: "No message provided" });
     }
 
-    // 1️⃣ Retrieve relevant knowledge
+    /* 1️⃣ Retrieve semantic context */
     const retrievedContext = await semanticSearch(userMessage);
 
-    // 2️⃣ Build strict system prompt
+    /* 2️⃣ Build system prompt */
     const systemPrompt = `
 You are an AI assistant for Harmony Aesthetics & Wellness.
 
@@ -39,7 +39,7 @@ CONTEXT:
 ${retrievedContext || "No relevant information found."}
 `;
 
-    // 3️⃣ OpenAI call
+    /* 3️⃣ OpenAI API call (Responses API — SAFE MODE) */
     const response = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
@@ -48,25 +48,34 @@ ${retrievedContext || "No relevant information found."}
       },
       body: JSON.stringify({
         model: "gpt-4o-mini",
-        input: [
+        messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userMessage }
         ]
       })
     });
 
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error("OpenAI error:", errText);
+      return res
+        .status(500)
+        .json({ answer: "I don’t have that information." });
+    }
+
     const data = await response.json();
 
-    // 4️⃣ Safe extraction
+    /* 4️⃣ Bulletproof extraction */
     const answer =
-      data?.output?.[0]?.content?.[0]?.text ||
+      data.output_text ||
+      data.output?.[0]?.content?.[0]?.text ||
       "I don’t have that information.";
 
     res.json({ answer });
 
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
+    console.error("Server error:", err);
+    res.status(500).json({ answer: "I don’t have that information." });
   }
 });
 
