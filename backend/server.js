@@ -24,7 +24,9 @@ app.post("/api/chat", async (req, res) => {
     }
 
     // 1️⃣ Retrieve relevant knowledge
-    const retrievedContext = await semanticSearch(userMessage);
+   const retrievedContext = await semanticSearch(userMessage);
+console.log("RETRIEVED CONTEXT:", retrievedContext);
+
 
     // 2️⃣ Strict system prompt
     const systemPrompt = `
