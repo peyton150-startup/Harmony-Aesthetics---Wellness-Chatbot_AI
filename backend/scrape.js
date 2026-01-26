@@ -23,31 +23,32 @@ async function scrapePage(path) {
   const { data } = await axios.get(url);
   const $ = cheerio.load(data);
 
-  $("script, style, nav, footer, header").remove();
+  $("script, style, nav").remove();
 
   const text = cleanText($("body").text());
 
   return {
-    id: path === "/" ? "home" : path.replace("/", ""),
-    text
+    title: path === "/" ? "Home" : path.replace("/", ""),
+    url,
+    content: text
   };
 }
 
 async function run() {
-  const chunks = [];
+  const pagesData = [];
 
   for (const page of pages) {
     console.log(`Scraping ${page}`);
     const content = await scrapePage(page);
-    chunks.push(content);
+    pagesData.push(content);
   }
 
   fs.writeFileSync(
-    "./data/chunks.json",
-    JSON.stringify(chunks, null, 2)
+    "./data/pages.json",
+    JSON.stringify(pagesData, null, 2)
   );
 
-  console.log("✅ Website scraped and saved to data/chunks.json");
+  console.log("✅ Website scraped and saved to data/pages.json");
 }
 
 run();
