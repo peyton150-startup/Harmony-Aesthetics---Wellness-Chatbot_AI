@@ -10,6 +10,7 @@ app.use(express.json());
 app.use(express.static("public"));
 
 
+
 // OpenAI client
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -69,6 +70,9 @@ ${knowledgeBase}
     console.error(err);
     res.status(500).json({ error: "Server error" });
   }
+});
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve("public/index.html"));
 });
 
 // Health check
