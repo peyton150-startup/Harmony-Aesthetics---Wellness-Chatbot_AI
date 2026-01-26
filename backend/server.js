@@ -1,83 +1,71 @@
+import express from "express";
+import cors from "cors";
 import fs from "fs";
 import path from "path";
-import express from "express";
-import OpenAI from "openai";
-import cors from "cors";
 import { fileURLToPath } from "url";
 
+const app = express();
+const PORT = process.env.PORT || 10000;
+
+// Needed for ES modules (__dirname replacement)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const app = express();
-
-/* 🔐 CORS — THIS IS THE FIX */
-app.use(
-  cors({
-    origin: [
-      "https://harmony-aesthetics---wellness-chatbot-ai-1.onrender.com"
-    ],
-    methods: ["GET", "POST"],
-    allowedHeaders: ["Content-Type"]
-  })
-);
+/* =========================
+   CORS CONFIG (CRITICAL)
+========================= */
+app.use(cors({
+  origin: [
+    "https://harmony-aesthetics-wellness-chatbot-ai-1.onrender.com"
+  ],
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type"]
+}));
 
 app.use(express.json());
 
-/* OpenAI */
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+/* =========================
+   DATA FILE PATHS
+   backend/data/pages.json
+========================= */
+const DATA_DIR = path.join(__dirname, "data");
+const PAGES_PATH = path.join(DATA_DIR, "pages.json");
 
-/* Load data correctly */
-const pagesPath = path.join(__dirname, "data", "pages.json");
-const pages = JSON.parse(fs.readFileSync(pagesPath, "utf8"));
+let pages = [];
 
-const knowledgeBase = pages
-  .map(p => `PAGE: ${p.title}\n${p.content}`)
-  .join("\n\n----------------\n\n");
+try {
+  pages = JSON.parse(fs.readFileSync(PAGES_PATH, "utf-8"));
+  console.log("pages.json loaded successfully");
+} catch (err) {
+  console.error("FAILED TO LOAD pages.json:", err.message);
+}
 
-/* Health */
+/* =========================
+   HEALTH CHECK (REQUIRED)
+========================= */
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-/* Chat */
+/* =========================
+   CHAT ENDPOINT
+========================= */
 app.post("/api/chat", async (req, res) => {
-  try {
-    const { message } = req.body;
-    if (!message) {
-      return res.status(400).json({ error: "Message required" });
-    }
+  const { message } = req.body;
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4.1-mini",
-      messages: [
-        {
-          role: "system",
-          content: `
-You are the official assistant for Harmony Aesthetics & Wellness.
-Answer ONLY using the information below.
-If the answer is not explicitly stated, say:
-"I don’t have that information."
-
-${knowledgeBase}
-`
-        },
-        { role: "user", content: message }
-      ]
-    });
-
-    res.json({
-      answer: completion.choices[0].message.content
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
+  if (!message) {
+    return res.status(400).json({ error: "Message is required" });
   }
+
+  // VERY BASIC RESPONSE (replace with your AI logic)
+  const answer = `You asked: "${message}"`;
+
+  res.json({ answer });
 });
 
-/* Start */
-const PORT = process.env.PORT || 10000;
+/* =========================
+   START SERVER
+========================= */
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
