@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import fetch from "node-fetch";
 import dotenv from "dotenv";
-import { semanticSearch } from "./vectorstore.js";
+import { semanticSearch } from "./vectorStore.js";
 
 dotenv.config();
 
