@@ -6,9 +6,7 @@ const API_BASE =
 export async function sendMessage(text) {
   const res = await fetch(`${API_BASE}/api/chat`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ message: text })
   });
 
