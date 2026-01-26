@@ -65,7 +65,7 @@ export async function semanticSearch(query, topK = 3) {
   }));
 
   return scored
-    .filter(r => r.score > 0.75) // similarity threshold
+    .filter(r => r.score > 0.6) // similarity threshold
     .sort((a, b) => b.score - a.score)
     .slice(0, topK)
     .map(r => r.text)
