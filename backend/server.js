@@ -5,9 +5,12 @@ import OpenAI from "openai";
 import cors from "cors";
 import { fileURLToPath } from "url";
 
-/* ---------- path resolution ---------- */
+/* ---------- resolve dirname (ESM-safe) ---------- */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+/* ---------- DEBUG (IMPORTANT) ---------- */
+console.log("SERVER __dirname =", __dirname);
 
 /* ---------- app ---------- */
 const app = express();
@@ -19,20 +22,16 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-/* ---------- IMPORTANT FIX ---------- */
-/* data folder is INSIDE backend */
+/* ---------- FIXED PATH ---------- */
 const pagesPath = path.join(__dirname, "data", "pages.json");
 
+console.log("LOOKING FOR pages.json AT =", pagesPath);
+
 if (!fs.existsSync(pagesPath)) {
-  console.error("❌ pages.json not found at:", pagesPath);
-  process.exit(1);
+  throw new Error(`pages.json NOT FOUND at ${pagesPath}`);
 }
 
 const pages = JSON.parse(fs.readFileSync(pagesPath, "utf8"));
-
-if (!Array.isArray(pages) || pages.length === 0) {
-  throw new Error("pages.json is empty or invalid");
-}
 
 /* ---------- knowledge base ---------- */
 const knowledgeBase = pages
@@ -67,7 +66,6 @@ ${knowledgeBase}
     });
 
     res.json({ answer: completion.choices[0].message.content });
-
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error" });
