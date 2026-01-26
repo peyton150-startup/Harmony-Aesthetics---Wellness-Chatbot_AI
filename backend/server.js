@@ -5,43 +5,46 @@ import OpenAI from "openai";
 import cors from "cors";
 import { fileURLToPath } from "url";
 
+/* ---------- path resolution ---------- */
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+/* ---------- app ---------- */
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ---------- PATH FIX (DO NOT CHANGE STRUCTURE) ----------
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// frontend is a sibling of backend
-const frontendPath = path.resolve(__dirname, "../frontend");
-
-// serve frontend files
-app.use(express.static(frontendPath));
-
-// ---------- OPENAI ----------
+/* ---------- OpenAI ---------- */
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-// ---------- LOAD DATA ----------
-const pagesPath = path.resolve(__dirname, "../data/pages.json");
+/* ---------- IMPORTANT FIX ---------- */
+/* data folder is INSIDE backend */
+const pagesPath = path.join(__dirname, "data", "pages.json");
+
+if (!fs.existsSync(pagesPath)) {
+  console.error("❌ pages.json not found at:", pagesPath);
+  process.exit(1);
+}
+
 const pages = JSON.parse(fs.readFileSync(pagesPath, "utf8"));
 
 if (!Array.isArray(pages) || pages.length === 0) {
   throw new Error("pages.json is empty or invalid");
 }
 
+/* ---------- knowledge base ---------- */
 const knowledgeBase = pages
-  .map(page => `PAGE: ${page.title}\n${page.content}`)
+  .map(p => `PAGE: ${p.title}\n${p.content}`)
   .join("\n\n----------------\n\n");
 
-// ---------- API ----------
+/* ---------- chat ---------- */
 app.post("/api/chat", async (req, res) => {
   try {
-    const userQuestion = req.body.message;
-    if (!userQuestion) {
-      return res.status(400).json({ error: "Message is required" });
+    const { message } = req.body;
+    if (!message) {
+      return res.status(400).json({ error: "Message required" });
     }
 
     const completion = await openai.chat.completions.create({
@@ -59,29 +62,25 @@ If the answer is not explicitly stated, say:
 ${knowledgeBase}
           `
         },
-        { role: "user", content: userQuestion }
+        { role: "user", content: message }
       ]
     });
 
     res.json({ answer: completion.choices[0].message.content });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error" });
   }
 });
 
-// ---------- HEALTH ----------
+/* ---------- health ---------- */
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-// ---------- FRONTEND FALLBACK ----------
-app.get("*", (req, res) => {
-  res.sendFile(path.join(frontendPath, "index.html"));
-});
-
-// ---------- START ----------
+/* ---------- start ---------- */
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`✅ Server running on port ${PORT}`);
 });
