@@ -3,16 +3,20 @@ import path from "path";
 import express from "express";
 import OpenAI from "openai";
 import cors from "cors";
+import { fileURLToPath } from "url";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ---------- FRONTEND PATH (THIS IS THE FIX) ----------
-const __dirname = new URL(".", import.meta.url).pathname;
+// ---------- PATH FIX (DO NOT CHANGE STRUCTURE) ----------
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// frontend is a sibling of backend
 const frontendPath = path.resolve(__dirname, "../frontend");
 
-// Serve frontend files
+// serve frontend files
 app.use(express.static(frontendPath));
 
 // ---------- OPENAI ----------
@@ -66,7 +70,7 @@ ${knowledgeBase}
   }
 });
 
-// ---------- HEALTH CHECK ----------
+// ---------- HEALTH ----------
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
