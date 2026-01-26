@@ -5,33 +5,38 @@ import OpenAI from "openai";
 import cors from "cors";
 
 const app = express();
+
+/* ---------- middleware ---------- */
 app.use(cors());
 app.use(express.json());
-app.use(express.static("public"));
 
+const __dirname = path.resolve();
 
+/* ---------- serve frontend ---------- */
+app.use(express.static(path.join(__dirname, "frontend")));
 
-// OpenAI client
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "frontend", "index.html"));
+});
+
+/* ---------- OpenAI client ---------- */
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
-// Load pages.json ONCE at startup
-const pagesPath = path.join(process.cwd(), "data/pages.json");
-
-// pages.json is an ARRAY
+/* ---------- load knowledge base ---------- */
+const pagesPath = path.join(__dirname, "data", "pages.json");
 const pages = JSON.parse(fs.readFileSync(pagesPath, "utf8"));
 
 if (!Array.isArray(pages) || pages.length === 0) {
   throw new Error("pages.json is empty or not an array");
 }
 
-// Build knowledge base (verbatim)
 const knowledgeBase = pages
   .map(page => `PAGE: ${page.title}\n${page.content}`)
   .join("\n\n----------------\n\n");
 
-// Chat endpoint
+/* ---------- chat endpoint ---------- */
 app.post("/api/chat", async (req, res) => {
   try {
     const userQuestion = req.body.message;
@@ -71,16 +76,13 @@ ${knowledgeBase}
     res.status(500).json({ error: "Server error" });
   }
 });
-app.get("*", (req, res) => {
-  res.sendFile(path.resolve("public/index.html"));
-});
 
-// Health check
+/* ---------- health check ---------- */
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-// Start server
+/* ---------- start server ---------- */
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
