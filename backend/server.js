@@ -12,6 +12,7 @@ const __dirname = path.dirname(__filename);
 /* ---------- DEBUG (IMPORTANT) ---------- */
 console.log("SERVER __dirname =", __dirname);
 
+
 /* ---------- app ---------- */
 const app = express();
 app.use(cors());
@@ -32,7 +33,7 @@ if (!fs.existsSync(pagesPath)) {
 }
 
 const pages = JSON.parse(fs.readFileSync(pagesPath, "utf8"));
-
+console.log("Resolved pages.json path:", pagesPath);
 /* ---------- knowledge base ---------- */
 const knowledgeBase = pages
   .map(p => `PAGE: ${p.title}\n${p.content}`)
