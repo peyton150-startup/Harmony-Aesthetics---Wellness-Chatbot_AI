@@ -64,7 +64,7 @@
       background: #fdfafb;
       cursor: pointer;
       font-size: 13px;
-      transition: all 0.2s ease;
+      color: black;
     }
 
     .prompt-chip:hover {
@@ -121,14 +121,17 @@
 
   <div id="indicator">Checking connection…</div>
 
-  <!-- 🔹 Starter prompt chips -->
+  <!-- Answers -->
+  <textarea id="output" class="chat-output" readonly></textarea>
+
+  <!-- 🔹 Starter prompt chips (NOW ABOVE INPUT) -->
   <div id="starter-prompts">
     <button class="prompt-chip">What is Botox?</button>
     <button class="prompt-chip">Where are you located?</button>
     <button class="prompt-chip">How do I book an appointment?</button>
   </div>
 
-  <textarea id="output" class="chat-output" readonly></textarea>
+  <!-- User input -->
   <textarea id="input" class="chat-input" placeholder="Ask a question…"></textarea>
 
   <button id="sendBtn" disabled>Send</button>
@@ -183,7 +186,6 @@
     }
   }
 
-  // 🔹 Starter prompt click handling
   document.querySelectorAll(".prompt-chip").forEach(btn => {
     btn.addEventListener("click", () => {
       sendMessage(btn.innerText);
