@@ -103,6 +103,16 @@ body {
   font-size: 1rem;
   font-weight: bold;
 }
+.prompt-chip {
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: 1px solid #e5d6de;
+  background: #fdfafb;
+  color: #000;            /* ← force black text */
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
 
 .chat-form button:hover {
   background: #AC8A5F;
