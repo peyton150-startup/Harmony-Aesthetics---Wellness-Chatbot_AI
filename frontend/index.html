@@ -49,6 +49,28 @@
     .yes { background: #e6f4ec; color: #1e7f43; }
     .no  { background: #fdecea; color: #a12622; }
 
+    /* 🔹 Starter prompts */
+    #starter-prompts {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .prompt-chip {
+      padding: 8px 12px;
+      border-radius: 20px;
+      border: 1px solid #e5d6de;
+      background: #fdfafb;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s ease;
+    }
+
+    .prompt-chip:hover {
+      background: #f1e6ec;
+    }
+
     .chat-output, .chat-input {
       width: 100%;
       border: 1px solid #e5d6de;
@@ -99,6 +121,13 @@
 
   <div id="indicator">Checking connection…</div>
 
+  <!-- 🔹 Starter prompt chips -->
+  <div id="starter-prompts">
+    <button class="prompt-chip">What is Botox?</button>
+    <button class="prompt-chip">Where are you located?</button>
+    <button class="prompt-chip">How do I book an appointment?</button>
+  </div>
+
   <textarea id="output" class="chat-output" readonly></textarea>
   <textarea id="input" class="chat-input" placeholder="Ask a question…"></textarea>
 
@@ -116,6 +145,7 @@
   const output = document.getElementById("output");
   const input = document.getElementById("input");
   const sendBtn = document.getElementById("sendBtn");
+  const starterPrompts = document.getElementById("starter-prompts");
 
   async function checkConnection() {
     try {
@@ -132,8 +162,8 @@
     }
   }
 
-  async function sendMessage() {
-    const message = input.value.trim();
+  async function sendMessage(messageOverride) {
+    const message = messageOverride || input.value.trim();
     if (!message) return;
 
     output.value = "Thinking…";
@@ -153,7 +183,15 @@
     }
   }
 
-  sendBtn.addEventListener("click", sendMessage);
+  // 🔹 Starter prompt click handling
+  document.querySelectorAll(".prompt-chip").forEach(btn => {
+    btn.addEventListener("click", () => {
+      sendMessage(btn.innerText);
+      starterPrompts.style.display = "none";
+    });
+  });
+
+  sendBtn.addEventListener("click", () => sendMessage());
 
   input.addEventListener("keydown", e => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -165,8 +203,6 @@
   checkConnection();
   setInterval(checkConnection, 5000);
 </script>
-
-
 
 </body>
 </html>
