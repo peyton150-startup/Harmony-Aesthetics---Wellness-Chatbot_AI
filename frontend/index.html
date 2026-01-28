@@ -9,92 +9,115 @@
       margin: 0;
       font-family: "Helvetica Neue", Arial, sans-serif;
       background: #f9f3f6;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       height: 100vh;
     }
 
-    .container {
-      width: 100%;
-      max-width: 800px;
-      background: #ffffff;
-      border-radius: 16px;
-      box-shadow: 10px 10px 30px rgba(0,0,0,0.1);
-      padding: 40px;
+    /* 🔹 Chat bubble */
+    #chat-bubble {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #b46a8c;
+      color: white;
       display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      cursor: pointer;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.25);
+      z-index: 1000;
+    }
+
+    /* 🔹 Chat container */
+    .container {
+      position: fixed;
+      bottom: 96px;
+      right: 24px;
+      width: 380px;
+      max-height: 80vh;
+      background: #ffffff;
+      border-radius: 18px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+      padding: 16px;
+      display: none;
       flex-direction: column;
+      z-index: 1000;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
     }
 
     h1 {
       margin: 0;
+      font-size: 16px;
       color: #b46a8c;
       font-weight: 500;
     }
 
+    .close-btn {
+      cursor: pointer;
+      font-size: 18px;
+      color: #999;
+    }
+
     .subtitle {
-      font-size: 14px;
+      font-size: 12px;
       color: #777;
-      margin-bottom: 10px;
+      margin-bottom: 6px;
     }
 
     #indicator {
       align-self: flex-start;
-      padding: 6px 12px;
+      padding: 4px 8px;
       border-radius: 20px;
-      font-size: 12px;
+      font-size: 10px;
       font-weight: bold;
-      margin-bottom: 14px;
+      margin-bottom: 8px;
     }
 
     .yes { background: #e6f4ec; color: #1e7f43; }
     .no  { background: #fdecea; color: #a12622; }
 
-    /* Chat area */
     #chat {
-      max-height: 240px;
+      flex: 1;
       overflow-y: auto;
       border: 1px solid #e5d6de;
       border-radius: 12px;
-      padding: 14px;
+      padding: 10px;
       background: #fdfafb;
-      margin-bottom: 14px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 10px;
+      margin-bottom: 8px;
     }
 
     .placeholder {
       color: #999;
-      font-size: 14px;
+      font-size: 12px;
       text-align: center;
-      margin-top: 80px;
+      margin: auto;
     }
 
-    /* Message wrapper */
     .message-wrap {
+      max-width: 80%;
       display: flex;
       flex-direction: column;
-      max-width: 70%;
     }
 
-    .message-wrap.user {
-      align-self: flex-end;
-      align-items: flex-end;
-    }
+    .user { align-self: flex-end; align-items: flex-end; }
+    .bot  { align-self: flex-start; align-items: flex-start; }
 
-    .message-wrap.bot {
-      align-self: flex-start;
-      align-items: flex-start;
-    }
-
-    /* Message bubble */
     .message {
-      padding: 10px 14px;
+      padding: 8px 12px;
       border-radius: 16px;
-      font-size: 14px;
-      line-height: 1.4;
-      word-wrap: break-word;
+      font-size: 12px;
     }
 
     .user .message {
@@ -109,44 +132,37 @@
       border-bottom-left-radius: 4px;
     }
 
-    /* Timestamp */
     .timestamp {
-      font-size: 11px;
+      font-size: 9px;
       color: #999;
-      margin-top: 4px;
+      margin-top: 3px;
     }
 
-    /* Starter prompts */
     #starter-prompts {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       flex-wrap: wrap;
-      margin-bottom: 10px;
+      margin-bottom: 6px;
     }
 
     .prompt-chip {
-      padding: 8px 12px;
+      padding: 5px 9px;
       border-radius: 20px;
       border: 1px solid #e5d6de;
       background: #fdfafb;
+      font-size: 11px;
       cursor: pointer;
-      font-size: 13px;
       color: #000;
     }
 
-    .prompt-chip:hover {
-      background: #f1e6ec;
-    }
-
     #input {
-      width: 100%;
-      height: 60px;
+      height: 44px;
       border: 1px solid #e5d6de;
       border-radius: 10px;
-      padding: 12px;
-      font-size: 14px;
+      padding: 9px;
+      font-size: 12px;
       resize: none;
-      margin-bottom: 10px;
+      margin-bottom: 6px;
     }
 
     button {
@@ -154,9 +170,9 @@
       background: #b46a8c;
       color: white;
       border: none;
-      padding: 10px 20px;
+      padding: 7px 14px;
       border-radius: 30px;
-      font-size: 14px;
+      font-size: 12px;
       cursor: pointer;
     }
 
@@ -166,19 +182,25 @@
     }
 
     .footer-note {
-      margin-top: 10px;
-      font-size: 12px;
+      font-size: 9px;
       color: #888;
+      text-align: center;
+      margin-top: 4px;
     }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <h1>Harmony Aesthetics & Wellness</h1>
-  <div class="subtitle">Virtual Assistant</div>
+<div id="chat-bubble">💬</div>
 
-  <div id="indicator">Checking connection…</div>
+<div class="container" id="chatbox">
+  <div class="header">
+    <h1>Harmony Aesthetics</h1>
+    <div class="close-btn" id="closeChat">✕</div>
+  </div>
+
+  <div class="subtitle">Virtual Assistant</div>
+  <div id="indicator">Checking…</div>
 
   <div id="chat">
     <div id="placeholder" class="placeholder">
@@ -187,41 +209,47 @@
   </div>
 
   <div id="starter-prompts">
-    <button class="prompt-chip">What is Botox?</button>
-    <button class="prompt-chip">Where are you located?</button>
-    <button class="prompt-chip">How do I book an appointment?</button>
+    <div class="prompt-chip">What is Botox?</div>
+    <div class="prompt-chip">Where are you located?</div>
+    <div class="prompt-chip">How do I book an appointment?</div>
   </div>
 
   <textarea id="input" placeholder="Ask a question…"></textarea>
   <button id="sendBtn" disabled>Send</button>
 
   <div class="footer-note">
-    For informational purposes only. Please contact us to book an appointment.
+    For informational purposes only.
   </div>
 </div>
 
 <script>
   const API_BASE = "https://harmony-aesthetics-wellness-chatbot-ai.onrender.com";
 
+  const chatBubble = document.getElementById("chat-bubble");
+  const chatbox = document.getElementById("chatbox");
+  const closeChat = document.getElementById("closeChat");
   const indicator = document.getElementById("indicator");
   const chat = document.getElementById("chat");
   const input = document.getElementById("input");
   const sendBtn = document.getElementById("sendBtn");
   const placeholder = document.getElementById("placeholder");
 
-  function getTime() {
-    return new Date().toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
+  chatBubble.onclick = () => {
+    chatbox.style.display = "flex";
+    chatBubble.style.display = "none";
+  };
 
-  function removePlaceholder() {
-    if (placeholder) placeholder.remove();
+  closeChat.onclick = () => {
+    chatbox.style.display = "none";
+    chatBubble.style.display = "flex";
+  };
+
+  function timeNow() {
+    return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   }
 
   function addMessage(text, role) {
-    removePlaceholder();
+    if (placeholder) placeholder.remove();
 
     const wrap = document.createElement("div");
     wrap.className = `message-wrap ${role}`;
@@ -232,7 +260,7 @@
 
     const time = document.createElement("div");
     time.className = "timestamp";
-    time.textContent = getTime();
+    time.textContent = timeNow();
 
     wrap.appendChild(msg);
     wrap.appendChild(time);
@@ -246,11 +274,11 @@
     try {
       const res = await fetch(`${API_BASE}/health`);
       if (!res.ok) throw new Error();
-      indicator.textContent = "CONNECTED: YES";
+      indicator.textContent = "CONNECTED";
       indicator.className = "yes";
       sendBtn.disabled = false;
     } catch {
-      indicator.textContent = "CONNECTED: NO";
+      indicator.textContent = "OFFLINE";
       indicator.className = "no";
       sendBtn.disabled = true;
     }
@@ -275,15 +303,15 @@
       const data = await res.json();
       loading.textContent = data.answer || "I don’t have that information.";
     } catch {
-      loading.textContent = "Error contacting server.";
+      loading.textContent = "Unable to reach server.";
     }
   }
 
   document.querySelectorAll(".prompt-chip").forEach(btn => {
-    btn.addEventListener("click", () => sendMessage(btn.innerText));
+    btn.onclick = () => sendMessage(btn.innerText);
   });
 
-  sendBtn.addEventListener("click", () => sendMessage());
+  sendBtn.onclick = () => sendMessage();
 
   input.addEventListener("keydown", e => {
     if (e.key === "Enter" && !e.shiftKey) {
