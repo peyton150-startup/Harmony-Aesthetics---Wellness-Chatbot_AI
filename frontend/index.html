@@ -23,6 +23,8 @@
       border-radius: 16px;
       box-shadow: 10px 10px 30px rgba(0,0,0,0.1);
       padding: 54px;
+      display: flex;
+      flex-direction: column;
     }
 
     h1 {
@@ -34,7 +36,7 @@
     .subtitle {
       font-size: 14px;
       color: #777;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
 
     #indicator {
@@ -43,18 +45,45 @@
       border-radius: 20px;
       font-size: 14px;
       font-weight: bold;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
+      width: fit-content;
     }
 
     .yes { background: #e6f4ec; color: #1e7f43; }
     .no  { background: #fdecea; color: #a12622; }
+
+    /* 🔹 Chat history */
+    #chat {
+      flex: 1;
+      border: 1px solid #e5d6de;
+      border-radius: 10px;
+      padding: 14px;
+      overflow-y: auto;
+      background: #fdfafb;
+      margin-bottom: 14px;
+    }
+
+    .message {
+      margin-bottom: 10px;
+      line-height: 1.4;
+      font-size: 14px;
+    }
+
+    .user {
+      font-weight: bold;
+      color: #333;
+    }
+
+    .bot {
+      color: #555;
+    }
 
     /* 🔹 Starter prompts */
     #starter-prompts {
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
     }
 
     .prompt-chip {
@@ -71,22 +100,13 @@
       background: #f1e6ec;
     }
 
-    .chat-output, .chat-input {
+    textarea {
       width: 100%;
       border: 1px solid #e5d6de;
       border-radius: 10px;
       padding: 14px;
       font-size: 14px;
       resize: none;
-    }
-
-    .chat-output {
-      height: 200px;
-      background: #fdfafb;
-      margin-bottom: 14px;
-    }
-
-    .chat-input {
       height: 70px;
       margin-bottom: 12px;
     }
@@ -99,6 +119,7 @@
       border-radius: 30px;
       font-size: 14px;
       cursor: pointer;
+      align-self: flex-start;
     }
 
     button:disabled {
@@ -121,19 +142,18 @@
 
   <div id="indicator">Checking connection…</div>
 
-  <!-- Answers -->
-  <textarea id="output" class="chat-output" readonly></textarea>
+  <!-- Chat history -->
+  <div id="chat"></div>
 
-  <!-- 🔹 Starter prompt chips (NOW ABOVE INPUT) -->
+  <!-- Starter prompts -->
   <div id="starter-prompts">
     <button class="prompt-chip">What is Botox?</button>
     <button class="prompt-chip">Where are you located?</button>
     <button class="prompt-chip">How do I book an appointment?</button>
   </div>
 
-  <!-- User input -->
-  <textarea id="input" class="chat-input" placeholder="Ask a question…"></textarea>
-
+  <!-- Input -->
+  <textarea id="input" placeholder="Ask a question…"></textarea>
   <button id="sendBtn" disabled>Send</button>
 
   <div class="footer-note">
@@ -145,16 +165,22 @@
   const API_BASE = "https://harmony-aesthetics-wellness-chatbot-ai.onrender.com";
 
   const indicator = document.getElementById("indicator");
-  const output = document.getElementById("output");
+  const chat = document.getElementById("chat");
   const input = document.getElementById("input");
   const sendBtn = document.getElementById("sendBtn");
-  const starterPrompts = document.getElementById("starter-prompts");
+
+  function addMessage(text, className) {
+    const div = document.createElement("div");
+    div.className = `message ${className}`;
+    div.textContent = text;
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+  }
 
   async function checkConnection() {
     try {
       const res = await fetch(`${API_BASE}/health`);
       if (!res.ok) throw new Error();
-
       indicator.textContent = "CONNECTED: YES";
       indicator.className = "yes";
       sendBtn.disabled = false;
@@ -169,7 +195,7 @@
     const message = messageOverride || input.value.trim();
     if (!message) return;
 
-    output.value = "Thinking…";
+    addMessage(`You: ${message}`, "user");
     input.value = "";
 
     try {
@@ -180,17 +206,14 @@
       });
 
       const data = await res.json();
-      output.value = data.answer || "No response.";
+      addMessage(`Bot: ${data.answer || "No response."}`, "bot");
     } catch {
-      output.value = "Error: Unable to contact the server.";
+      addMessage("Bot: Error contacting server.", "bot");
     }
   }
 
   document.querySelectorAll(".prompt-chip").forEach(btn => {
-    btn.addEventListener("click", () => {
-      sendMessage(btn.innerText);
-      starterPrompts.style.display = "none";
-    });
+    btn.addEventListener("click", () => sendMessage(btn.innerText));
   });
 
   sendBtn.addEventListener("click", () => sendMessage());
