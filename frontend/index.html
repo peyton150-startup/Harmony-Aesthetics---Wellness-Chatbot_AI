@@ -50,39 +50,52 @@
     .yes { background: #e6f4ec; color: #1e7f43; }
     .no  { background: #fdecea; color: #a12622; }
 
-    /* 🔹 Chat box (LIMITED HEIGHT) */
+    /* 🔹 Chat area */
     #chat {
-      max-height: 220px;          /* 👈 limits space (~3 messages) */
-      overflow-y: auto;           /* 👈 enables scrolling */
+      max-height: 240px;
+      overflow-y: auto;
       border: 1px solid #e5d6de;
-      border-radius: 10px;
+      border-radius: 12px;
       padding: 14px;
       background: #fdfafb;
       margin-bottom: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
     .placeholder {
       color: #999;
       font-size: 14px;
       text-align: center;
-      margin-top: 60px;
+      margin-top: 80px;
     }
 
+    /* 🔹 Message bubbles */
     .message {
-      margin-bottom: 10px;
-      line-height: 1.4;
+      max-width: 70%;
+      padding: 10px 14px;
+      border-radius: 16px;
       font-size: 14px;
+      line-height: 1.4;
+      word-wrap: break-word;
     }
 
     .user {
-      font-weight: bold;
-      margin-bottom: 4px;
+      align-self: flex-end;
+      background: #b46a8c;
+      color: white;
+      border-bottom-right-radius: 4px;
     }
 
     .bot {
+      align-self: flex-start;
+      background: #f1e6ec;
       color: #333;
+      border-bottom-left-radius: 4px;
     }
 
+    /* 🔹 Starter prompts */
     #starter-prompts {
       display: flex;
       gap: 8px;
@@ -179,10 +192,10 @@
     if (placeholder) placeholder.remove();
   }
 
-  function addMessage(text, className) {
+  function addMessage(text, role) {
     removePlaceholder();
     const div = document.createElement("div");
-    div.className = `message ${className}`;
+    div.className = `message ${role}`;
     div.textContent = text;
     chat.appendChild(div);
     chat.scrollTop = chat.scrollHeight;
@@ -207,10 +220,10 @@
     const message = messageOverride || input.value.trim();
     if (!message) return;
 
-    addMessage(`You: ${message}`, "user");
+    addMessage(message, "user");
     input.value = "";
 
-    const loading = addMessage("Bot: Getting response…", "bot");
+    const loading = addMessage("Getting response…", "bot");
 
     try {
       const res = await fetch(`${API_BASE}/api/chat`, {
@@ -220,9 +233,9 @@
       });
 
       const data = await res.json();
-      loading.textContent = `Bot: ${data.answer || "I don’t have that information."}`;
+      loading.textContent = data.answer || "I don’t have that information.";
     } catch {
-      loading.textContent = "Bot: Error contacting server.";
+      loading.textContent = "Error contacting server.";
     }
   }
 
