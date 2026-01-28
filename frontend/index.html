@@ -50,9 +50,10 @@
     .yes { background: #e6f4ec; color: #1e7f43; }
     .no  { background: #fdecea; color: #a12622; }
 
+    /* 🔹 Chat box (LIMITED HEIGHT) */
     #chat {
-      flex: 1;
-      overflow-y: auto;
+      max-height: 220px;          /* 👈 limits space (~3 messages) */
+      overflow-y: auto;           /* 👈 enables scrolling */
       border: 1px solid #e5d6de;
       border-radius: 10px;
       padding: 14px;
@@ -73,8 +74,14 @@
       font-size: 14px;
     }
 
-    .user { font-weight: bold; }
-    .bot { color: #333; }
+    .user {
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .bot {
+      color: #333;
+    }
 
     #starter-prompts {
       display: flex;
