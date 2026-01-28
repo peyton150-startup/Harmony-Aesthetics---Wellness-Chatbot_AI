@@ -37,7 +37,7 @@
     bottom: 100px;
     right: 24px;
     width: 360px;
-    height: 500px;
+    height: 520px;
     background: white;
     border-radius: 16px;
     box-shadow: 0 20px 40px rgba(0,0,0,0.25);
@@ -56,6 +56,29 @@
     align-items: center;
   }
 
+  /* 🔹 Suggested questions */
+  #suggestions {
+    display: flex;
+    gap: 8px;
+    padding: 10px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid #eee;
+  }
+
+  .chip {
+    padding: 6px 12px;
+    border-radius: 16px;
+    border: 1px solid #e5d6de;
+    background: #fdfafb;
+    font-size: 12px;
+    cursor: pointer;
+    color: #000;
+  }
+
+  .chip:hover {
+    background: #f1e6ec;
+  }
+
   #chatMessages {
     flex: 1;
     padding: 12px;
@@ -69,6 +92,7 @@
     max-width: 80%;
     padding: 8px 12px;
     border-radius: 14px;
+    line-height: 1.4;
   }
 
   .user {
@@ -89,6 +113,7 @@
     display: flex;
     padding: 10px;
     gap: 8px;
+    border-top: 1px solid #eee;
   }
 
   #chatInput textarea {
@@ -121,12 +146,19 @@
     <span id="closeChat" style="cursor:pointer;">✕</span>
   </div>
 
+  <!-- 🔹 Suggested questions -->
+  <div id="suggestions">
+    <div class="chip">How do I book an appointment?</div>
+    <div class="chip">Where is your office located?</div>
+    <div class="chip">What is Botox?</div>
+  </div>
+
   <div id="chatMessages">
     <div class="bot msg">Hi! How can I help you today?</div>
   </div>
 
   <div id="chatInput">
-    <textarea id="input" rows="2" placeholder="Ask a question..."></textarea>
+    <textarea id="input" rows="2" placeholder="Ask a question…"></textarea>
     <button id="send">Send</button>
   </div>
 </div>
@@ -160,8 +192,8 @@
     return div;
   }
 
-  async function sendMsg() {
-    const text = input.value.trim();
+  async function sendMsg(textOverride) {
+    const text = textOverride || input.value.trim();
     if (!text) return;
 
     addMsg(text, "user");
@@ -183,12 +215,21 @@
     }
   }
 
-  send.onclick = sendMsg;
+  send.onclick = () => sendMsg();
+
   input.addEventListener("keydown", e => {
     if (e.key === "Enter") {
       e.preventDefault();
       sendMsg();
     }
+  });
+
+  // 🔹 Suggested question click
+  document.querySelectorAll(".chip").forEach(chip => {
+    chip.onclick = () => {
+      sendMsg(chip.textContent);
+      document.getElementById("suggestions").style.display = "none";
+    };
   });
 </script>
 
