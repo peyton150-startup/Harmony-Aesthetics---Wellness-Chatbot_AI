@@ -50,7 +50,7 @@
     .yes { background: #e6f4ec; color: #1e7f43; }
     .no  { background: #fdecea; color: #a12622; }
 
-    /* 🔹 Chat area */
+    /* Chat area */
     #chat {
       max-height: 240px;
       overflow-y: auto;
@@ -61,7 +61,7 @@
       margin-bottom: 14px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 14px;
     }
 
     .placeholder {
@@ -71,9 +71,25 @@
       margin-top: 80px;
     }
 
-    /* 🔹 Message bubbles */
-    .message {
+    /* Message wrapper */
+    .message-wrap {
+      display: flex;
+      flex-direction: column;
       max-width: 70%;
+    }
+
+    .message-wrap.user {
+      align-self: flex-end;
+      align-items: flex-end;
+    }
+
+    .message-wrap.bot {
+      align-self: flex-start;
+      align-items: flex-start;
+    }
+
+    /* Message bubble */
+    .message {
       padding: 10px 14px;
       border-radius: 16px;
       font-size: 14px;
@@ -81,21 +97,26 @@
       word-wrap: break-word;
     }
 
-    .user {
-      align-self: flex-end;
+    .user .message {
       background: #b46a8c;
       color: white;
       border-bottom-right-radius: 4px;
     }
 
-    .bot {
-      align-self: flex-start;
+    .bot .message {
       background: #f1e6ec;
       color: #333;
       border-bottom-left-radius: 4px;
     }
 
-    /* 🔹 Starter prompts */
+    /* Timestamp */
+    .timestamp {
+      font-size: 11px;
+      color: #999;
+      margin-top: 4px;
+    }
+
+    /* Starter prompts */
     #starter-prompts {
       display: flex;
       gap: 8px;
@@ -188,18 +209,37 @@
   const sendBtn = document.getElementById("sendBtn");
   const placeholder = document.getElementById("placeholder");
 
+  function getTime() {
+    return new Date().toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
   function removePlaceholder() {
     if (placeholder) placeholder.remove();
   }
 
   function addMessage(text, role) {
     removePlaceholder();
-    const div = document.createElement("div");
-    div.className = `message ${role}`;
-    div.textContent = text;
-    chat.appendChild(div);
+
+    const wrap = document.createElement("div");
+    wrap.className = `message-wrap ${role}`;
+
+    const msg = document.createElement("div");
+    msg.className = "message";
+    msg.textContent = text;
+
+    const time = document.createElement("div");
+    time.className = "timestamp";
+    time.textContent = getTime();
+
+    wrap.appendChild(msg);
+    wrap.appendChild(time);
+    chat.appendChild(wrap);
+
     chat.scrollTop = chat.scrollHeight;
-    return div;
+    return msg;
   }
 
   async function checkConnection() {
