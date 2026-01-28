@@ -1,327 +1,195 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Harmony Aesthetics – Chatbot</title>
+<meta charset="UTF-8" />
+<title>Harmony Aesthetics Chat</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: "Helvetica Neue", Arial, sans-serif;
-      background: #f9f3f6;
-      height: 100vh;
-    }
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Arial, sans-serif;
+  }
 
-    /* 🔹 Chat bubble */
-    #chat-bubble {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background: #b46a8c;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 26px;
-      cursor: pointer;
-      box-shadow: 0 12px 24px rgba(0,0,0,0.25);
-      z-index: 1000;
-    }
+  /* 🔹 Floating bubble */
+  #chatBubble {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 60px;
+    height: 60px;
+    background: #b46a8c;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    z-index: 99999;
+  }
 
-    /* 🔹 Chat container */
-    .container {
-      position: fixed;
-      bottom: 96px;
-      right: 24px;
-      width: 380px;
-      max-height: 80vh;
-      background: #ffffff;
-      border-radius: 18px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.25);
-      padding: 16px;
-      display: none;
-      flex-direction: column;
-      z-index: 1000;
-    }
+  /* 🔹 Chat window */
+  #chatWindow {
+    position: fixed;
+    bottom: 100px;
+    right: 24px;
+    width: 360px;
+    height: 500px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+    display: none;
+    flex-direction: column;
+    z-index: 99999;
+  }
 
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 6px;
-    }
+  #chatHeader {
+    padding: 12px;
+    background: #b46a8c;
+    color: white;
+    border-radius: 16px 16px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 
-    h1 {
-      margin: 0;
-      font-size: 16px;
-      color: #b46a8c;
-      font-weight: 500;
-    }
+  #chatMessages {
+    flex: 1;
+    padding: 12px;
+    overflow-y: auto;
+    background: #fdfafb;
+    font-size: 13px;
+  }
 
-    .close-btn {
-      cursor: pointer;
-      font-size: 18px;
-      color: #999;
-    }
+  .msg {
+    margin-bottom: 10px;
+    max-width: 80%;
+    padding: 8px 12px;
+    border-radius: 14px;
+  }
 
-    .subtitle {
-      font-size: 12px;
-      color: #777;
-      margin-bottom: 6px;
-    }
+  .user {
+    background: #b46a8c;
+    color: white;
+    margin-left: auto;
+    border-bottom-right-radius: 4px;
+  }
 
-    #indicator {
-      align-self: flex-start;
-      padding: 4px 8px;
-      border-radius: 20px;
-      font-size: 10px;
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
+  .bot {
+    background: #eee;
+    color: #333;
+    margin-right: auto;
+    border-bottom-left-radius: 4px;
+  }
 
-    .yes { background: #e6f4ec; color: #1e7f43; }
-    .no  { background: #fdecea; color: #a12622; }
+  #chatInput {
+    display: flex;
+    padding: 10px;
+    gap: 8px;
+  }
 
-    #chat {
-      flex: 1;
-      overflow-y: auto;
-      border: 1px solid #e5d6de;
-      border-radius: 12px;
-      padding: 10px;
-      background: #fdfafb;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
+  #chatInput textarea {
+    flex: 1;
+    resize: none;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+  }
 
-    .placeholder {
-      color: #999;
-      font-size: 12px;
-      text-align: center;
-      margin: auto;
-    }
-
-    .message-wrap {
-      max-width: 80%;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .user { align-self: flex-end; align-items: flex-end; }
-    .bot  { align-self: flex-start; align-items: flex-start; }
-
-    .message {
-      padding: 8px 12px;
-      border-radius: 16px;
-      font-size: 12px;
-    }
-
-    .user .message {
-      background: #b46a8c;
-      color: white;
-      border-bottom-right-radius: 4px;
-    }
-
-    .bot .message {
-      background: #f1e6ec;
-      color: #333;
-      border-bottom-left-radius: 4px;
-    }
-
-    .timestamp {
-      font-size: 9px;
-      color: #999;
-      margin-top: 3px;
-    }
-
-    #starter-prompts {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin-bottom: 6px;
-    }
-
-    .prompt-chip {
-      padding: 5px 9px;
-      border-radius: 20px;
-      border: 1px solid #e5d6de;
-      background: #fdfafb;
-      font-size: 11px;
-      cursor: pointer;
-      color: #000;
-    }
-
-    #input {
-      height: 44px;
-      border: 1px solid #e5d6de;
-      border-radius: 10px;
-      padding: 9px;
-      font-size: 12px;
-      resize: none;
-      margin-bottom: 6px;
-    }
-
-    button {
-      align-self: flex-end;
-      background: #b46a8c;
-      color: white;
-      border: none;
-      padding: 7px 14px;
-      border-radius: 30px;
-      font-size: 12px;
-      cursor: pointer;
-    }
-
-    button:disabled {
-      background: #d8b4c4;
-      cursor: not-allowed;
-    }
-
-    .footer-note {
-      font-size: 9px;
-      color: #888;
-      text-align: center;
-      margin-top: 4px;
-    }
-  </style>
+  #chatInput button {
+    background: #b46a8c;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 14px;
+    cursor: pointer;
+  }
+</style>
 </head>
 <body>
 
-<div id="chat-bubble">💬</div>
+<!-- 🔹 Bubble -->
+<div id="chatBubble">💬</div>
 
-<div class="container" id="chatbox">
-  <div class="header">
-    <h1>Harmony Aesthetics</h1>
-    <div class="close-btn" id="closeChat">✕</div>
+<!-- 🔹 Chat -->
+<div id="chatWindow">
+  <div id="chatHeader">
+    <span>Harmony Assistant</span>
+    <span id="closeChat" style="cursor:pointer;">✕</span>
   </div>
 
-  <div class="subtitle">Virtual Assistant</div>
-  <div id="indicator">Checking…</div>
-
-  <div id="chat">
-    <div id="placeholder" class="placeholder">
-      Answers will appear here.
-    </div>
+  <div id="chatMessages">
+    <div class="bot msg">Hi! How can I help you today?</div>
   </div>
 
-  <div id="starter-prompts">
-    <div class="prompt-chip">What is Botox?</div>
-    <div class="prompt-chip">Where are you located?</div>
-    <div class="prompt-chip">How do I book an appointment?</div>
-  </div>
-
-  <textarea id="input" placeholder="Ask a question…"></textarea>
-  <button id="sendBtn" disabled>Send</button>
-
-  <div class="footer-note">
-    For informational purposes only.
+  <div id="chatInput">
+    <textarea id="input" rows="2" placeholder="Ask a question..."></textarea>
+    <button id="send">Send</button>
   </div>
 </div>
 
 <script>
-  const API_BASE = "https://harmony-aesthetics-wellness-chatbot-ai.onrender.com";
+  const API = "https://harmony-aesthetics-wellness-chatbot-ai.onrender.com/api/chat";
 
-  const chatBubble = document.getElementById("chat-bubble");
-  const chatbox = document.getElementById("chatbox");
-  const closeChat = document.getElementById("closeChat");
-  const indicator = document.getElementById("indicator");
-  const chat = document.getElementById("chat");
+  const bubble = document.getElementById("chatBubble");
+  const windowBox = document.getElementById("chatWindow");
+  const closeBtn = document.getElementById("closeChat");
+  const messages = document.getElementById("chatMessages");
   const input = document.getElementById("input");
-  const sendBtn = document.getElementById("sendBtn");
-  const placeholder = document.getElementById("placeholder");
+  const send = document.getElementById("send");
 
-  chatBubble.onclick = () => {
-    chatbox.style.display = "flex";
-    chatBubble.style.display = "none";
+  bubble.onclick = () => {
+    windowBox.style.display = "flex";
+    bubble.style.display = "none";
   };
 
-  closeChat.onclick = () => {
-    chatbox.style.display = "none";
-    chatBubble.style.display = "flex";
+  closeBtn.onclick = () => {
+    windowBox.style.display = "none";
+    bubble.style.display = "flex";
   };
 
-  function timeNow() {
-    return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  function addMsg(text, cls) {
+    const div = document.createElement("div");
+    div.className = `msg ${cls}`;
+    div.textContent = text;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+    return div;
   }
 
-  function addMessage(text, role) {
-    if (placeholder) placeholder.remove();
+  async function sendMsg() {
+    const text = input.value.trim();
+    if (!text) return;
 
-    const wrap = document.createElement("div");
-    wrap.className = `message-wrap ${role}`;
-
-    const msg = document.createElement("div");
-    msg.className = "message";
-    msg.textContent = text;
-
-    const time = document.createElement("div");
-    time.className = "timestamp";
-    time.textContent = timeNow();
-
-    wrap.appendChild(msg);
-    wrap.appendChild(time);
-    chat.appendChild(wrap);
-
-    chat.scrollTop = chat.scrollHeight;
-    return msg;
-  }
-
-  async function checkConnection() {
-    try {
-      const res = await fetch(`${API_BASE}/health`);
-      if (!res.ok) throw new Error();
-      indicator.textContent = "CONNECTED";
-      indicator.className = "yes";
-      sendBtn.disabled = false;
-    } catch {
-      indicator.textContent = "OFFLINE";
-      indicator.className = "no";
-      sendBtn.disabled = true;
-    }
-  }
-
-  async function sendMessage(messageOverride) {
-    const message = messageOverride || input.value.trim();
-    if (!message) return;
-
-    addMessage(message, "user");
+    addMsg(text, "user");
     input.value = "";
 
-    const loading = addMessage("Getting response…", "bot");
+    const loading = addMsg("Getting response…", "bot");
 
     try {
-      const res = await fetch(`${API_BASE}/api/chat`, {
+      const res = await fetch(API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message })
+        body: JSON.stringify({ message: text })
       });
 
       const data = await res.json();
       loading.textContent = data.answer || "I don’t have that information.";
     } catch {
-      loading.textContent = "Unable to reach server.";
+      loading.textContent = "Server error.";
     }
   }
 
-  document.querySelectorAll(".prompt-chip").forEach(btn => {
-    btn.onclick = () => sendMessage(btn.innerText);
-  });
-
-  sendBtn.onclick = () => sendMessage();
-
+  send.onclick = sendMsg;
   input.addEventListener("keydown", e => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === "Enter") {
       e.preventDefault();
-      sendMessage();
+      sendMsg();
     }
   });
-
-  checkConnection();
-  setInterval(checkConnection, 5000);
 </script>
 
 </body>
